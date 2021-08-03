@@ -18,6 +18,9 @@
     "Verifiable_credentials_DotNet": {
       "commandName": "Project",
       "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
       "applicationUrl": "http://0.0.0.0:3000"
     }
   }

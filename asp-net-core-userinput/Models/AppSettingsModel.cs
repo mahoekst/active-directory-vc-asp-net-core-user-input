@@ -8,10 +8,10 @@ using System.IO;
 namespace asp_net_core_user_input
 {
     /// <summary>
-    /// Description of the configuration of an AzureAD confidential client application (daemon application). This should
+    /// Description of the configuration of an AzureAD confidential client application. This should
     /// match the application registration done in the Azure portal
     /// </summary>
-    public class AuthenticationConfig
+    public class AppSettingsModel
     {
         /// <summary>
         /// instance of Azure AD, for example public Azure or a Sovereign cloud (Azure China, Germany, US government, etc ...)
@@ -19,18 +19,25 @@ namespace asp_net_core_user_input
         public string Instance { get; set; } = "https://login.microsoftonline.com/{0}";
 
         /// <summary>
+        /// URL of the client REST API endpoint
+        /// </summary>
+        private string Endpoint { get; set; } = "https://beta.did.msidentity.com/v1.0/{0}/verifiablecredentials/request";
+
+        /// <summary>
         /// Web Api scope. With client credentials flows, the scopes is ALWAYS of the shape "resource/.default"
         /// FUTURE THIS WILL CHANGE TO MS GRAPH SCOPE
         /// </summary>
         public string VCServiceScope { get; set; }
 
+
+  
         /// <summary>
         /// The Tenant is:
         /// - either the tenant ID of the Azure AD tenant in which this application is registered (a guid)
         /// or a domain name associated with the tenant
         /// - or 'organizations' (for a multi-tenant application)
         /// </summary>
-        public string Tenant { get; set; }
+        public string TenantId { get; set; }
 
         /// <summary>
         /// Guid used by the application to uniquely identify itself to Azure AD
@@ -44,10 +51,17 @@ namespace asp_net_core_user_input
         {
             get
             {
-                return String.Format(CultureInfo.InvariantCulture, Instance, Tenant);
+                return String.Format(CultureInfo.InvariantCulture, Instance, TenantId);
             }
         }
 
+        public string ApiEndpoint
+        {
+            get
+            {
+                return String.Format(CultureInfo.InvariantCulture, Endpoint, TenantId);
+            }
+        }
         /// <summary>
         /// Client secret (application password)
         /// </summary>
@@ -68,22 +82,23 @@ namespace asp_net_core_user_input
         /// <remarks> 
         public string CertificateName { get; set; }
 
+ 
         /// <summary>
         /// Reads the configuration from a json file
         /// </summary>
         /// <param name="path">Path to the configuration json file</param>
         /// <returns>AuthenticationConfig read from the json file</returns>
-        public static AuthenticationConfig ReadFromJsonFile(string path)
-        {
-            IConfigurationRoot Configuration;
+        //public static AppSettingsModel ReadFromJsonFile(string path)
+        //{
+        //    IConfigurationRoot Configuration;
 
-            var builder = new ConfigurationBuilder()
-             .SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile(path);
+        //    var builder = new ConfigurationBuilder()
+        //     .SetBasePath(Directory.GetCurrentDirectory())
+        //    .AddJsonFile(path);
 
-            Configuration = builder.Build();
-            return Configuration.Get<AuthenticationConfig>();
-        }
+        //    Configuration = builder.Build();
+        //    return Configuration.Get<AppSettingsModel>();
+        //}
     }
 
 

@@ -223,13 +223,13 @@ Function ConfigureApplications
    # Update config file for 'client'
    $configFile = $pwd.Path + "\..\asp-net-core-userinput\appsettings.json"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "TenantId" = $tenant;"ClientId" = $clientAadApplication.AppId;"ClientSecret" = $clientAppKey };
+   $dictionary = @{ "TenantId" = $tenantId;"ClientId" = $clientAadApplication.AppId;"ClientSecret" = $clientAppKey };
    UpdateTextFile -configFilePath $configFile -dictionary $dictionary
    Write-Host ""
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
    Write-Host "- For 'client'"
    Write-Host "  - Navigate to '$clientPortalUrl'"
-   Write-Host "  - Navigate to the API permissions page and click on 'Grant admin consent for {tenant}'"
+   Write-Host "  - Navigate to the API permissions page and click on 'Grant admin consent for $tenantName'"
 
    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 }

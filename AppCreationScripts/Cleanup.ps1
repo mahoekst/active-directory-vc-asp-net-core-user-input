@@ -49,8 +49,8 @@ This function removes the Azure AD applications for the sample. These applicatio
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantName'"
 
-    Write-Host "Removing 'client' (daemon-console) if needed"
-    $app=Get-AzureADApplication -Filter "DisplayName eq 'daemon-console'"  
+    Write-Host "Removing 'client' (Verifiable Credentials ASP.Net User Input core sample) if needed"
+    $app=Get-AzureADApplication -Filter "DisplayName eq 'Verifiable Credentials ASP.Net User Input core sample'"  
 
     if ($app)
     {

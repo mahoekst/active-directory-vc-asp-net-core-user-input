@@ -1,3 +1,4 @@
+using asp_net_core_user_input;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +36,9 @@ namespace Verifiable_credentials_DotNet
             {
                 options.AllowSynchronousIO = true;
             });
+
+            services.Configure<AppSettingsModel>(Configuration.GetSection("AppSettings"));
+
 
             services.AddDistributedMemoryCache();
             services.AddSession(options =>

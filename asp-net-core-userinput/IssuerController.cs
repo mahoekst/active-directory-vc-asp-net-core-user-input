@@ -29,12 +29,14 @@ namespace Verifiable_credentials_DotNet
     public class IssuerController : ControllerBase
     {
         const string ISSUANCEPAYLOAD = "issuance_request_config.json";
-        const string APIENDPOINT = "https://beta.did.msidentity.com/v1.0/cc7743d2-9026-44df-ba0e-33f87ebba062/verifiablecredentials/request";
+//        const string APIENDPOINT = "https://beta.did.msidentity.com/v1.0/cc7743d2-9026-44df-ba0e-33f87ebba062/verifiablecredentials/request";
 
+        protected readonly AppSettingsModel AppSettings;
         protected IMemoryCache _cache;
 
-        public IssuerController(IMemoryCache memoryCache)
+        public IssuerController(IOptions<AppSettingsModel> appSettings,IMemoryCache memoryCache)
         {
+            this.AppSettings = appSettings.Value;
             _cache = memoryCache;
         }
 
@@ -47,33 +49,33 @@ namespace Verifiable_credentials_DotNet
                 //
                 //TODO put the MSAL and auth config piece centrally and setup the proper access token cache
                 //
-                AuthenticationConfig config = AuthenticationConfig.ReadFromJsonFile("appsettings.json");
+                //AppSettingsModel config = AppSettingsModel.ReadFromJsonFile("appsettings.json");
                 // You can run this sample using ClientSecret or Certificate. The code will differ only when instantiating the IConfidentialClientApplication
-                bool isUsingClientSecret = AppUsesClientSecret(config);
+                bool isUsingClientSecret = AppUsesClientSecret(AppSettings);
 
                 // Since we are using application permissions this will be a confidential client application
                 IConfidentialClientApplication app;
                 if (isUsingClientSecret)
                 {
-                    app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
-                        .WithClientSecret(config.ClientSecret)
-                        .WithAuthority(new Uri(config.Authority))
+                    app = ConfidentialClientApplicationBuilder.Create(AppSettings.ClientId)
+                        .WithClientSecret(AppSettings.ClientSecret)
+                        .WithAuthority(new Uri(AppSettings.Authority))
                         .Build();
                 }
 
                 else
                 {
-                    X509Certificate2 certificate = ReadCertificate(config.CertificateName);
-                    app = ConfidentialClientApplicationBuilder.Create(config.ClientId)
+                    X509Certificate2 certificate = ReadCertificate(AppSettings.CertificateName);
+                    app = ConfidentialClientApplicationBuilder.Create(AppSettings.ClientId)
                         .WithCertificate(certificate)
-                        .WithAuthority(new Uri(config.Authority))
+                        .WithAuthority(new Uri(AppSettings.Authority))
                         .Build();
                 }
 
                 // With client credentials flows the scopes is ALWAYS of the shape "resource/.default", as the 
                 // application permissions need to be set statically (in the portal or by PowerShell), and then granted by
                 // a tenant administrator. 
-                string[] scopes = new string[] { config.VCServiceScope };
+                string[] scopes = new string[] { AppSettings.VCServiceScope };
 
                 AuthenticationResult result = null;
                 try
@@ -137,7 +139,7 @@ namespace Verifiable_credentials_DotNet
 
                     defaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
 
-                    HttpResponseMessage res = client.PostAsync(APIENDPOINT, new StringContent(jsonString, Encoding.UTF8, "application/json")).Result;
+                    HttpResponseMessage res = client.PostAsync(AppSettings.ApiEndpoint, new StringContent(jsonString, Encoding.UTF8, "application/json")).Result;
                     response = res.Content.ReadAsStringAsync().Result;
                     client.Dispose();
                     statusCode = res.StatusCode;
@@ -257,7 +259,7 @@ namespace Verifiable_credentials_DotNet
         /// </summary>
         /// <param name="config">Configuration from appsettings.json</param>
         /// <returns></returns>
-        private static bool AppUsesClientSecret(AuthenticationConfig config)
+        private static bool AppUsesClientSecret(AppSettingsModel config)
         {
             string clientSecretPlaceholderValue = "[Enter here a client secret for your application]";
             string certificatePlaceholderValue = "[Or instead of client secret: Enter here the name of a certificate (from the user cert store) as registered with your application]";
