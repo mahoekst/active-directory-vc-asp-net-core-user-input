@@ -178,14 +178,13 @@ Function ConfigureApplications
     $user = Get-AzureADUser -ObjectId $creds.Account.Id
 
    # Create the client AAD application
-   Write-Host "Creating the AAD application (daemon-console)"
+   Write-Host "Creating the AAD application (Verifiable Credentials ASP.Net User Input core sample)"
    # Get a 2 years application key for the client Application
    $pw = ComputePassword
    $fromDate = [DateTime]::Now;
    $key = CreateAppKey -fromDate $fromDate -durationInYears 2 -pw $pw
    $clientAppKey = $pw
    $clientAadApplication = New-AzureADApplication -DisplayName "Verifiable Credentials ASP.Net User Input core sample" `
-                                                  -ReplyUrls "https://daemon" `
                                                   -IdentifierUris "https://$tenantName/vcaspnetcoresample" `
                                                   -PasswordCredentials $key `
                                                   -PublicClient $False
@@ -210,9 +209,9 @@ Function ConfigureApplications
 
    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
 
-   # Add Required Resources Access (from 'client' to 'Microsoft Graph')
+   # Add Required Resources Access (from 'client' to 'Verifiable Credential Request Service')
    Write-Host "Getting access from 'client' to 'Microsoft Graph'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Verifiable Credential Request Service" `
                                                 -requiredApplicationPermissions "VerifiableCredential.Create.All";
 
    $requiredResourcesAccess.Add($requiredPermissions)
@@ -224,7 +223,7 @@ Function ConfigureApplications
    # Update config file for 'client'
    $configFile = $pwd.Path + "\..\asp-net-core-userinput\appsettings.json"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Tenant" = $tenantName;"ClientId" = $clientAadApplication.AppId;"ClientSecret" = $clientAppKey };
+   $dictionary = @{ "TenantId" = $tenant;"ClientId" = $clientAadApplication.AppId;"ClientSecret" = $clientAppKey };
    UpdateTextFile -configFilePath $configFile -dictionary $dictionary
    Write-Host ""
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
