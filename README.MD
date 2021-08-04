@@ -5,7 +5,7 @@ languages:
 products:
 - active-directory
 description: "A code sample demonstrating issuance and verification of verifiable credentials."
-urlFragment: "verifiable-credentials"
+urlFragment: "active-directory-vc-asp-net-core-user-input"
 ---
 # Verifiable Credentials Code Sample
 
@@ -75,7 +75,7 @@ Make sure you modify the payloads json files. The Authority in the payloads shou
 ## Credential defintion
 In the project directory CredentialFiles you will find the VerifiedCredentialExpertDisplay.json file and the VerifiedCredentialExpertRules.json file. When you are using these 2 files to create your own credential make sure you modify the "iss:" value in the rules file and replace the DID with your own DID.
 
-## Calling the API
+## About the code
 Since the API is now a multi-tenant API it needs to receive an access token when it's called. 
 The endpoint of the API is https://beta.did.msidentity.com/v1.0/{YOURTENANTID}/verifiablecredentials/request 
 
@@ -88,7 +88,7 @@ app = ConfidentialClientApplicationBuilder.Create(AppSettings.ClientId)
     .Build();
 ```
 And creating an access token:
-```
+```C#
 result = await app.AcquireTokenForClient(scopes)
                   .ExecuteAsync();
 ```
@@ -103,3 +103,30 @@ defaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", re
 HttpResponseMessage res = client.PostAsync(AppSettings.ApiEndpoint, new StringContent(jsonString, Encoding.UTF8, "application/json")).Result;
 response = res.Content.ReadAsStringAsync().Result;
 ```
+
+## Troubleshooting
+
+### Did you forget to provide admin consent? This is needed for confidential apps
+If you get an error when calling the API `Insufficient privileges to complete the operation.`, this is because the tenant administrator has not granted permissions
+to the application. See step 6 of [Register the client app](#create application registration) above.
+
+You will typically see, on the output window, something like the following:
+
+```Json
+Failed to call the Web Api: Forbidden
+Content: {
+  "error": {
+    "code": "Authorization_RequestDenied",
+    "message": "Insufficient privileges to complete the operation.",
+    "innerError": {
+      "request-id": "<a guid>",
+      "date": "<date>"
+    }
+  }
+}
+```
+
+
+## Best practices
+When deploying applications which need client credentials and use secrets or certificates the more secure practice is to use certificates. If you are hosting your application on azure make sure you check how to deploy managed identities. This takes away the management and risks of secrets in your application.
+You can find more information here:
