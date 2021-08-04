@@ -46,7 +46,7 @@ Run the powershell script ConfigureVCService.ps1 in the AppCreationScripts direc
 5. Click "Add", then Click "Save"
 
 ### create application registration
-Run the Configure.ps1 powershell script in the AppCreationScripts directory or follow these manual steps to create an application registrations, give the application the correct permissions so it can access the Verifiable Credentials Request REST API:
+Run the [Configure1.ps1](./AppCreationScripts/AppCreationScripts.md) powershell script in the AppCreationScripts directory or follow these manual steps to create an application registrations, give the application the correct permissions so it can access the Verifiable Credentials Request REST API:
 
 Register an application in Azure Active Directory: 
 1. Sign in to the Azure portal using either a work or school account or a personal Microsoft account.
@@ -130,3 +130,13 @@ Content: {
 ## Best practices
 When deploying applications which need client credentials and use secrets or certificates the more secure practice is to use certificates. If you are hosting your application on azure make sure you check how to deploy managed identities. This takes away the management and risks of secrets in your application.
 You can find more information here:
+- [Integrate a daemon app with Key Vault and MSI](https://github.com/Azure-Samples/active-directory-dotnetcore-daemon-v2/tree/master/3-Using-KeyVault)
+
+
+## More information
+
+For more information, see MSAL.NET's conceptual documentation:
+
+- [Quickstart: Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
+- [Quickstart: Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
+- [Acquiring a token for an application with client credential flows](https://aka.ms/msal-net-client-credentials)
