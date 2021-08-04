@@ -26,6 +26,7 @@ namespace Verifiable_credentials_DotNet
     public class VerifierController : Controller
     {
         const string PRESENTATIONPAYLOAD = "presentation_request_config.json";
+//        const string PRESENTATIONPAYLOAD = "presentation_request_config - TrueIdentitySample.json";
 
         protected readonly AppSettingsModel AppSettings;
         protected IMemoryCache _cache;

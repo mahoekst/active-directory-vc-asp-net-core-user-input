@@ -1,0 +1,26 @@
+{
+  "includeQRCode": false,
+  "callback": {
+    "url": "https://callback.hoekstra.dev/api/verifier/presentationCallback",
+    "state": "dasd",
+    "headers": {
+      "api-key": "API for VERIFIER CALLBACK API"
+    }
+  },
+  "authority": "did:ion:EiCSQ9X5y-UXiDjl8wKXp8BoIGbAN682H3f6vfkLKKewTQ:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJzaWdfMDg2YjlmOTMiLCJwdWJsaWNLZXlKd2siOnsiY3J2Ijoic2VjcDI1NmsxIiwia3R5IjoiRUMiLCJ4IjoiQXJIQ3V0RzE5M2dxWHhUdHh3S2F5TEFBUlV6SThQUnpSbnFPZGpZYmpMVSIsInkiOiI2NEFXelRiYk5TcF93UEpVNUlJV3BVeFpXS1VKTlBHTHdndkluWGRwdm1jIn0sInB1cnBvc2VzIjpbImF1dGhlbnRpY2F0aW9uIiwiYXNzZXJ0aW9uTWV0aG9kIl0sInR5cGUiOiJFY2RzYVNlY3AyNTZrMVZlcmlmaWNhdGlvbktleTIwMTkifV0sInNlcnZpY2VzIjpbeyJpZCI6ImxpbmtlZGRvbWFpbnMiLCJzZXJ2aWNlRW5kcG9pbnQiOnsib3JpZ2lucyI6WyJodHRwczovL3d3dy5ob2Vrc3RyYW9ubGluZS5uZXQvIl19LCJ0eXBlIjoiTGlua2VkRG9tYWlucyJ9XX19XSwidXBkYXRlQ29tbWl0bWVudCI6IkVpRGlsRGhDT1VULWo1OHhWNFJ4Z2RmV2RYdTFhZklRQUJ5dXNrOEdrQkxwOHcifSwic3VmZml4RGF0YSI6eyJkZWx0YUhhc2giOiJFaUNxLVRJVGZVdk4zaGpsWGpJVEo3M2UyTzZnRlRYRnNubksyWk1VTEVYdVhBIiwicmVjb3ZlcnlDb21taXRtZW50IjoiRWlDUVEtMDR6Y2dGclV1RFVWaHN5ZzBiZk1tSUM4MkVLaTB1b3BCSVNFVlNFQSJ9fQ",
+  "registration": {
+    "clientName": "TrueIdentity Verifier"
+  },
+  "presentation": {
+    "includeReceipt": true,
+    "requestedCredentials": [
+      {
+        "type": "TrueIdentity",
+        "manifest": "https://beta.did.msidentity.com/v1.0/3c32ed40-8a10-465b-8ba4-0b1e86882668/verifiableCredential/contracts/True%20Identity",
+        "purpose": "So we can see that you a veriable credentials expert",
+        "trustedIssuers": [ "did:ion:E11iAUeAySrc1qgPucLYI_ytfudT8bFxUETNolzz4PCdy1bw:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJzaWdfMjRiYjMwNzQiLCJwdWJsaWNLZXlKd2siOnsiY3J2Ijoic2VjcDI1NmsxIiwia3R5IjoiRUMiLCJ4IjoiRDlqYUgwUTFPZW1XYVVfeGtmRzBJOVoyYnctOFdLUFF2TWt2LWtkdjNxUSIsInkiOiJPclVUSzBKSWN0UnFQTHRCQlQxSW5iMTdZS29sSFJvX1kyS0Zfb3YyMEV3In0sInB1cnBvc2VzIjpbImF1dGhlbnRpY2F0aW9uIiwiYXNzZXJ0aW9uTWV0aG9kIl0sInR5cGUiOiJFY2RzYVNlY3AyNTZrMVZlcmlmaWNhdGlvbktleTIwMTkifV0sInNlcnZpY2VzIjpbeyJpZCI6ImxpbmtlZGRvbWFpbnMiLCJzZXJ2aWNlRW5kcG9pbnQiOnsib3JpZ2lucyI6WyJodHRwczovL2RpZC53b29kZ3JvdmVkZW1vLmNvbS8iXX0sInR5cGUiOiJMaW5rZWREb21haW5zIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlBeWF1TVgzRWtBcUg2RVFUUEw4SmQ4alVvYjZXdlZrNUpSamdodEVYWHhDQSJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpQ1NvajVqSlNOUjBKU0tNZEJ1Y2RuMlh5U2ZaYndWVlNIWUNrREllTHV5NnciLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUR4Ym1ELTQ5cEFwMDBPakd6VXdoNnY5ZjB5cnRiaU5TbXA3dldwbTREVHpBIn19", "did:ion:23rjcmfejif" ]
+      }
+
+    ]
+  }
+}
