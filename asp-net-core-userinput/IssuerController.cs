@@ -29,12 +29,11 @@ namespace Verifiable_credentials_DotNet
     public class IssuerController : ControllerBase
     {
         const string ISSUANCEPAYLOAD = "issuance_request_config.json";
-//        const string APIENDPOINT = "https://beta.did.msidentity.com/v1.0/cc7743d2-9026-44df-ba0e-33f87ebba062/verifiablecredentials/request";
 
         protected readonly AppSettingsModel AppSettings;
         protected IMemoryCache _cache;
 
-        public IssuerController(IOptions<AppSettingsModel> appSettings,IMemoryCache memoryCache)
+        public IssuerController(IOptions<AppSettingsModel> appSettings, IMemoryCache memoryCache)
         {
             this.AppSettings = appSettings.Value;
             _cache = memoryCache;
@@ -45,13 +44,12 @@ namespace Verifiable_credentials_DotNet
         {
             try
             {
- 
+
                 //
-                //TODO put the MSAL and auth config piece centrally and setup the proper access token cache
+                //TODO Setup the proper access token cache for client credentials
                 //
-                //AppSettingsModel config = AppSettingsModel.ReadFromJsonFile("appsettings.json");
                 // You can run this sample using ClientSecret or Certificate. The code will differ only when instantiating the IConfidentialClientApplication
-                bool isUsingClientSecret = AppUsesClientSecret(AppSettings);
+                bool isUsingClientSecret = AppSettings.AppUsesClientSecret(AppSettings);
 
                 // Since we are using application permissions this will be a confidential client application
                 IConfidentialClientApplication app;
@@ -62,10 +60,9 @@ namespace Verifiable_credentials_DotNet
                         .WithAuthority(new Uri(AppSettings.Authority))
                         .Build();
                 }
-
                 else
                 {
-                    X509Certificate2 certificate = ReadCertificate(AppSettings.CertificateName);
+                    X509Certificate2 certificate = AppSettings.ReadCertificate(AppSettings.CertificateName);
                     app = ConfidentialClientApplicationBuilder.Create(AppSettings.ClientId)
                         .WithCertificate(certificate)
                         .WithAuthority(new Uri(AppSettings.Authority))
@@ -126,9 +123,6 @@ namespace Verifiable_credentials_DotNet
 
                 jsonString = JsonConvert.SerializeObject(payload);
 
-
-
-
                 //CALL REST API WITH PAYLOAD
                 HttpStatusCode statusCode = HttpStatusCode.OK;
                 string response = null;
@@ -136,7 +130,6 @@ namespace Verifiable_credentials_DotNet
                 {
                     HttpClient client = new HttpClient();
                     var defaultRequestHeaders = client.DefaultRequestHeaders;
-
                     defaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
 
                     HttpResponseMessage res = client.PostAsync(AppSettings.ApiEndpoint, new StringContent(jsonString, Encoding.UTF8, "application/json")).Result;
@@ -203,14 +196,22 @@ namespace Verifiable_credentials_DotNet
                 //
                 //THIS IS NOT IMPLEMENTED IN OUR SERVICE YET, ONLY MOCKUP FOR ONCE WE DO SUPPORT THE CALLBACK AFTER ISSUANCE
                 //
-                if (issuanceResponse["code"].ToString() == "credential_issued")
+                if (issuanceResponse["code"].ToString() == "issuance_succesful")
                 {
                     var cacheData = new
                     {
-                        status = "credential_issued",
+                        status = "issuance_succesful",
                         message = "Credential succesful issued",
-                        payload = issuanceResponse["issuers"].ToString(),
-                        subject = issuanceResponse["subject"].ToString()
+                    };
+                    _cache.Set(state, JsonConvert.SerializeObject(cacheData));
+                }
+                if (issuanceResponse["code"].ToString() == "issuance_failed")
+                {
+                    var cacheData = new
+                    {
+                        status = "issuance_failed",
+                        message = "Credential issuance failed",
+                        payload = issuanceResponse["details"].ToString()
                     };
                     _cache.Set(state, JsonConvert.SerializeObject(cacheData));
                 }
@@ -248,47 +249,6 @@ namespace Verifiable_credentials_DotNet
             {
                 return BadRequest(new { error = "400", error_description = ex.Message });
             }
-
-        }
-
-
-
-        /// <summary>
-        /// Checks if the sample is configured for using ClientSecret or Certificate. This method is just for the sake of this sample.
-        /// You won't need this verification in your production application since you will be authenticating in AAD using one mechanism only.
-        /// </summary>
-        /// <param name="config">Configuration from appsettings.json</param>
-        /// <returns></returns>
-        private static bool AppUsesClientSecret(AppSettingsModel config)
-        {
-            string clientSecretPlaceholderValue = "[Enter here a client secret for your application]";
-            string certificatePlaceholderValue = "[Or instead of client secret: Enter here the name of a certificate (from the user cert store) as registered with your application]";
-
-            if (!String.IsNullOrWhiteSpace(config.ClientSecret) && config.ClientSecret != clientSecretPlaceholderValue)
-            {
-                return true;
-            }
-
-            else if (!String.IsNullOrWhiteSpace(config.CertificateName) && config.CertificateName != certificatePlaceholderValue)
-            {
-                return false;
-            }
-
-            else
-                throw new Exception("You must choose between using client secret or certificate. Please update appsettings.json file.");
-        }
-
-        private static X509Certificate2 ReadCertificate(string certificateName)
-        {
-            if (string.IsNullOrWhiteSpace(certificateName))
-            {
-                throw new ArgumentException("certificateName should not be empty. Please set the CertificateName setting in the appsettings.json", "certificateName");
-            }
-            CertificateDescription certificateDescription = CertificateDescription.FromStoreWithDistinguishedName(certificateName);
-            DefaultCertificateLoader defaultCertificateLoader = new DefaultCertificateLoader();
-            defaultCertificateLoader.LoadIfNeeded(certificateDescription);
-            return certificateDescription.Certificate;
         }
     }
-
 }

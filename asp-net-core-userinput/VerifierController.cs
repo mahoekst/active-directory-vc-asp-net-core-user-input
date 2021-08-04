@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -13,36 +14,24 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using asp_net_core_user_input;
+using System.Security.Cryptography.X509Certificates;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Client;
+using System.Net.Http.Headers;
+using Microsoft.Extensions.Options;
 
 namespace Verifiable_credentials_DotNet
 {
     public class VerifierController : Controller
     {
         const string PRESENTATIONPAYLOAD = "presentation_request_config.json";
-        const string APIENDPOINT = "https://dev.did.msidentity.com/v1.0/abc/verifiablecredentials/request";
 
-        //public override async void OnActionExecuting(ActionExecutingContext filterContext)
-        //{
-        //    string content = "";
-        //    var request = filterContext.HttpContext.Request;
-        //    try
-        //    {
-        //        request.EnableBuffering();
-        //        request.Body.Position = 0;
-        //        using (StreamReader reader = new StreamReader(request.Body, Encoding.UTF8, true, 1024, true))
-        //        {
-        //            content = await reader.ReadToEndAsync();
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        request.Body.Position = 0;
-        //    }
-        //}
-
+        protected readonly AppSettingsModel AppSettings;
         protected IMemoryCache _cache;
-        public VerifierController(IMemoryCache memoryCache)
+        public VerifierController(IOptions<AppSettingsModel> appSettings,IMemoryCache memoryCache)
         {
+            this.AppSettings = appSettings.Value;
             _cache = memoryCache;
         }
 
@@ -52,6 +41,53 @@ namespace Verifiable_credentials_DotNet
         {
             try
             {
+                //
+                //TODO Setup the proper access token cache for client credentials
+                //
+                // You can run this sample using ClientSecret or Certificate. The code will differ only when instantiating the IConfidentialClientApplication
+                bool isUsingClientSecret = AppSettings.AppUsesClientSecret(AppSettings);
+                
+                // Since we are using application permissions this will be a confidential client application
+                IConfidentialClientApplication app;
+                if (isUsingClientSecret)
+                {
+                    app = ConfidentialClientApplicationBuilder.Create(AppSettings.ClientId)
+                        .WithClientSecret(AppSettings.ClientSecret)
+                        .WithAuthority(new Uri(AppSettings.Authority))
+                        .Build();
+                }
+                else
+                {
+                    X509Certificate2 certificate = AppSettings.ReadCertificate(AppSettings.CertificateName);
+                    app = ConfidentialClientApplicationBuilder.Create(AppSettings.ClientId)
+                        .WithCertificate(certificate)
+                        .WithAuthority(new Uri(AppSettings.Authority))
+                        .Build();
+                }
+
+                // With client credentials flows the scopes is ALWAYS of the shape "resource/.default", as the 
+                // application permissions need to be set statically (in the portal or by PowerShell), and then granted by
+                // a tenant administrator. 
+                string[] scopes = new string[] { AppSettings.VCServiceScope };
+
+                AuthenticationResult result = null;
+                try
+                {
+                    result = await app.AcquireTokenForClient(scopes)
+                        .ExecuteAsync();
+                }
+                catch (MsalServiceException ex) when (ex.Message.Contains("AADSTS70011"))
+                {
+                    // Invalid scope. The scope has to be of the form "https://resourceurl/.default"
+                    // Mitigation: change the scope to be as expected
+                    return BadRequest(new { error = "500", error_description = "Scope provided is not suppoerted" });
+                }
+                catch (MsalServiceException ex)
+                {
+                    // general error getting an access token
+                    return BadRequest(new { error = "500", error_description = "Something went wrong getting an access token for the client API:" + ex.Message });
+                }
+
                 string jsonString = null;
 
                 string payloadpath = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), PRESENTATIONPAYLOAD);
@@ -77,7 +113,10 @@ namespace Verifiable_credentials_DotNet
                 try
                 {
                     HttpClient client = new HttpClient();
-                    HttpResponseMessage res = client.PostAsync(APIENDPOINT, new StringContent(jsonString, Encoding.UTF8, "application/json")).Result;
+                    var defaultRequestHeaders = client.DefaultRequestHeaders;
+                    defaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+
+                    HttpResponseMessage res = client.PostAsync(AppSettings.ApiEndpoint, new StringContent(jsonString, Encoding.UTF8, "application/json")).Result;
                     response = res.Content.ReadAsStringAsync().Result;
                     client.Dispose();
                     statusCode = res.StatusCode;
