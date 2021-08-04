@@ -108,7 +108,7 @@ response = res.Content.ReadAsStringAsync().Result;
 
 ### Did you forget to provide admin consent? This is needed for confidential apps
 If you get an error when calling the API `Insufficient privileges to complete the operation.`, this is because the tenant administrator has not granted permissions
-to the application. See step 6 of [Register the client app](#create application registration) above.
+to the application. See step 6 of 'Register the client app' above.
 
 You will typically see, on the output window, something like the following:
 
